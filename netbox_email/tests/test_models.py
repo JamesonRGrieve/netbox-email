@@ -44,6 +44,14 @@ class MailboxModelTest(TestCase):
         self.assertIsNone(m.quota_mb)
         self.assertEqual(m.credential_ref, "mail/box/alice")  # a path, not the secret
         self.assertEqual(m.get_mailbox_type_color(), "green")
+        self.assertEqual(m.send_as_addresses, [])  # owned send-as addresses default to empty
+
+    def test_send_as_addresses_roundtrip(self):
+        m = Mailbox.objects.create(local_part="jameson", domain=self.domain)
+        m.send_as_addresses = ["james@box.example", "jameson@zephyrex.dev"]
+        m.save()
+        m.refresh_from_db()
+        self.assertEqual(m.send_as_addresses, ["james@box.example", "jameson@zephyrex.dev"])
 
     def test_unique_local_part_per_domain(self):
         Mailbox.objects.create(local_part="bob", domain=self.domain)

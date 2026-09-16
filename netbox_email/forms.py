@@ -22,16 +22,21 @@ class MailDomainForm(NetBoxModelForm):
 
 class MailboxForm(NetBoxModelForm):
     domain = DynamicModelChoiceField(queryset=MailDomain.objects.all())
+    send_as_addresses = SimpleArrayField(
+        forms.CharField(max_length=320), required=False,
+        help_text="Comma-separated addresses this account owns as send-as identities.",
+    )
 
     fieldsets = (
         FieldSet("local_part", "domain", "mailbox_type", "display_name", name="Mailbox"),
         FieldSet("quota_mb", "credential_ref", "is_active", name="Quota / auth"),
+        FieldSet("send_as_addresses", name="Send-as identities"),
     )
 
     class Meta:
         model = Mailbox
         fields = ["local_part", "domain", "mailbox_type", "display_name", "quota_mb",
-                  "credential_ref", "is_active", "tags"]
+                  "credential_ref", "send_as_addresses", "is_active", "tags"]
 
 
 class MailAliasForm(NetBoxModelForm):

@@ -74,6 +74,12 @@ class Mailbox(NetBoxModel):
     credential_ref = models.CharField(
         max_length=255, blank=True, help_text="OpenBao path for the password — NEVER the secret."
     )
+    send_as_addresses = ArrayField(
+        models.CharField(max_length=320), default=list, blank=True,
+        help_text="Additional addresses this account OWNS as send-as identities — it may both receive at "
+        "and send from each with the domain's DKIM authority (the mail server's account-alias set, e.g. "
+        "Stalwart x:Account aliases). Full addresses, distinct from a forwarding MailAlias.",
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
