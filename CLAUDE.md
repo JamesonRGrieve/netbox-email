@@ -75,7 +75,10 @@ holds the structure; OpenBao holds the secret.
 - **MailDomain**: `name`(unique)·`domain_type`·`is_catchall`·`dkim_selector`·`dkim_key_ref`(OpenBao
   path); optional `service_instance`("netbox_services.ServiceInstance", SET_NULL).
 - **Mailbox** (FK domain): `local_part`·`mailbox_type`·`display_name`·`quota_mb`·`credential_ref`
-  (OpenBao path)·`is_active`; unique `(local_part, domain)`; `__str__ = local_part@domain`.
+  (OpenBao path)·`send_as_addresses` (ArrayField: owned send-as identities)·`shared_with` (ArrayField:
+  addresses of the other mailboxes whose owners also open this one with its own credential; `clean()`
+  rejects itself and undefined mailboxes, case-insensitively)·`is_active`; unique `(local_part, domain)`;
+  `__str__ = local_part@domain`; `address` = lowercased full address.
 - **MailAlias** (FK domain): `source_local_part`·`destinations`(ArrayField)·`is_active`; unique
   `(source_local_part, domain)`.
 - **MailRelay**: `name`(unique)·`upstream_host`·`upstream_port`(587)·`auth_type`·`credential_ref`

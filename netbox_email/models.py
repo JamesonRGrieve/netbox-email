@@ -12,6 +12,7 @@ values here. ``Mailbox.credential_ref`` / ``MailRelay.credential_ref`` / ``MailD
 are OpenBao PATH references (the netbox-services convention); the secret value stays in OpenBao.
 """
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from netbox.models import NetBoxModel
@@ -80,6 +81,13 @@ class Mailbox(NetBoxModel):
         "and send from each with the domain's DKIM authority (the mail server's account-alias set, e.g. "
         "Stalwart x:Account aliases). Full addresses, distinct from a forwarding MailAlias.",
     )
+    shared_with = ArrayField(
+        models.CharField(max_length=320), default=list, blank=True,
+        help_text="Addresses of the mailboxes whose owners also open THIS mailbox in their mail client, "
+        "authenticating with this mailbox's own credential — so each receives at and sends as this address "
+        "(e.g. a second personal mailbox, or a shared mailbox for several people). Each entry must be another "
+        "mailbox defined here.",
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -94,6 +102,20 @@ class Mailbox(NetBoxModel):
 
     def __str__(self):
         return f"{self.local_part}@{self.domain}"
+
+    @property
+    def address(self):
+        return f"{self.local_part}@{self.domain.name}".lower()
+
+    def clean(self):
+        super().clean()
+        wanted = [a.strip().lower() for a in self.shared_with]
+        if self.domain_id and self.address in wanted:
+            raise ValidationError({"shared_with": "A mailbox cannot be shared with itself."})
+        known = {m.address for m in Mailbox.objects.select_related("domain")}
+        unknown = [a for a in wanted if a not in known]
+        if unknown:
+            raise ValidationError({"shared_with": f"Not a defined mailbox: {', '.join(unknown)}"})
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_email:mailbox", args=[self.pk])

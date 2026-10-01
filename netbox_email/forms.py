@@ -26,17 +26,22 @@ class MailboxForm(NetBoxModelForm):
         forms.CharField(max_length=320), required=False,
         help_text="Comma-separated addresses this account owns as send-as identities.",
     )
+    shared_with = SimpleArrayField(
+        forms.CharField(max_length=320), required=False,
+        help_text="Comma-separated addresses of the mailboxes whose owners also open this mailbox.",
+    )
 
     fieldsets = (
         FieldSet("local_part", "domain", "mailbox_type", "display_name", name="Mailbox"),
         FieldSet("quota_mb", "credential_ref", "is_active", name="Quota / auth"),
         FieldSet("send_as_addresses", name="Send-as identities"),
+        FieldSet("shared_with", name="Shared with"),
     )
 
     class Meta:
         model = Mailbox
         fields = ["local_part", "domain", "mailbox_type", "display_name", "quota_mb",
-                  "credential_ref", "send_as_addresses", "is_active", "tags"]
+                  "credential_ref", "send_as_addresses", "shared_with", "is_active", "tags"]
 
 
 class MailAliasForm(NetBoxModelForm):

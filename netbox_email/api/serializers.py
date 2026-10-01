@@ -26,7 +26,7 @@ class MailboxSerializer(NetBoxModelSerializer):
         model = Mailbox
         fields = [
             "id", "url", "display", "local_part", "domain", "mailbox_type", "display_name",
-            "quota_mb", "credential_ref", "send_as_addresses", "is_active", "tags", "custom_fields",
+            "quota_mb", "credential_ref", "send_as_addresses", "shared_with", "is_active", "tags", "custom_fields",
             "created", "last_updated",
         ]
         brief_fields = ["id", "url", "display", "local_part", "domain"]

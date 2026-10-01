@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Model tests against a real DB (no mocks): creation, str, choice-color, constraints, cascades."""
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -52,6 +53,34 @@ class MailboxModelTest(TestCase):
         m.save()
         m.refresh_from_db()
         self.assertEqual(m.send_as_addresses, ["james@box.example", "jameson@zephyrex.dev"])
+
+    def test_shared_with_defaults_empty_and_roundtrips(self):
+        Mailbox.objects.create(local_part="owner", domain=self.domain)
+        m = Mailbox.objects.create(local_part="family", domain=self.domain, mailbox_type=MailboxTypeChoices.SHARED)
+        self.assertEqual(m.shared_with, [])
+        m.shared_with = ["owner@box.example"]
+        m.full_clean()
+        m.save()
+        m.refresh_from_db()
+        self.assertEqual(m.shared_with, ["owner@box.example"])
+        self.assertEqual(m.address, "family@box.example")
+
+    def test_shared_with_matches_addresses_case_insensitively(self):
+        Mailbox.objects.create(local_part="dana", domain=self.domain)
+        m = Mailbox(local_part="team", domain=self.domain, shared_with=[" Dana@Box.Example "])
+        m.full_clean()
+
+    def test_shared_with_rejects_unknown_mailbox(self):
+        m = Mailbox(local_part="lonely", domain=self.domain, shared_with=["ghost@box.example"])
+        with self.assertRaises(ValidationError) as ctx:
+            m.full_clean()
+        self.assertIn("ghost@box.example", str(ctx.exception))
+
+    def test_shared_with_rejects_itself(self):
+        m = Mailbox.objects.create(local_part="self", domain=self.domain)
+        m.shared_with = ["self@box.example"]
+        with self.assertRaises(ValidationError):
+            m.full_clean()
 
     def test_unique_local_part_per_domain(self):
         Mailbox.objects.create(local_part="bob", domain=self.domain)
