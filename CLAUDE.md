@@ -82,7 +82,9 @@ holds the structure; OpenBao holds the secret.
 - **MailAlias** (FK domain): `source_local_part`·`destinations`(ArrayField)·`is_active`; unique
   `(source_local_part, domain)`.
 - **MailRelay**: `name`(unique)·`upstream_host`·`upstream_port`(587)·`auth_type`·`credential_ref`
-  (OpenBao path)·`use_tls`; optional `service_instance`("netbox_services.ServiceInstance", SET_NULL).
+  (OpenBao path)·`use_tls`·`sender_domains` (ArrayField: sender domains whose outbound mail leaves through
+  this relay; `clean()` rejects a domain another relay already claims, case-insensitively); optional
+  `service_instance`("netbox_services.ServiceInstance", SET_NULL).
 
 ---
 

@@ -53,6 +53,7 @@ class MailRelaySerializer(NetBoxModelSerializer):
         model = MailRelay
         fields = [
             "id", "url", "display", "name", "upstream_host", "upstream_port", "auth_type",
-            "credential_ref", "use_tls", "service_instance", "tags", "custom_fields", "created", "last_updated",
+            "credential_ref", "use_tls", "service_instance", "sender_domains", "tags", "custom_fields", "created",
+            "last_updated",
         ]
         brief_fields = ["id", "url", "display", "name", "upstream_host"]

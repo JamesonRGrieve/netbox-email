@@ -142,6 +142,27 @@ class MailRelayModelTest(TestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             MailRelay.objects.create(name="dup-relay", upstream_host="b.example")
 
+    def test_sender_domains_default_and_roundtrip(self):
+        r = MailRelay.objects.create(name="smarthost-a", upstream_host="mail.smtp.example")
+        self.assertEqual(r.sender_domains, [])
+        r.sender_domains = ["a.example", "b.example"]
+        r.full_clean()
+        r.save()
+        r.refresh_from_db()
+        self.assertEqual(r.sender_domains, ["a.example", "b.example"])
+
+    def test_sender_domain_claimed_by_one_relay_only(self):
+        MailRelay.objects.create(name="smarthost-b", upstream_host="mail.smtp.example", sender_domains=["dup.example"])
+        other = MailRelay(name="smarthost-c", upstream_host="mail.smtp.example", sender_domains=[" DUP.example "])
+        with self.assertRaises(ValidationError) as ctx:
+            other.full_clean()
+        self.assertIn("smarthost-b", str(ctx.exception))
+
+    def test_relay_may_keep_its_own_domains_on_edit(self):
+        r = MailRelay.objects.create(name="smarthost-d", upstream_host="mail.smtp.example", sender_domains=["own.example"])
+        r.upstream_port = 2525
+        r.full_clean()
+
     def test_credential_ref_is_a_path(self):
         r = MailRelay.objects.create(
             name="auth-relay", upstream_host="smtp.example", auth_type=RelayAuthChoices.CRAM_MD5,

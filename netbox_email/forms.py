@@ -59,15 +59,21 @@ class MailAliasForm(NetBoxModelForm):
 
 
 class MailRelayForm(NetBoxModelForm):
+    sender_domains = SimpleArrayField(
+        forms.CharField(max_length=253), required=False,
+        help_text="Comma-separated sender domains whose outbound mail leaves through this relay.",
+    )
+
     fieldsets = (
         FieldSet("name", "upstream_host", "upstream_port", "use_tls", name="Relay"),
         FieldSet("auth_type", "credential_ref", "service_instance", name="Auth"),
+        FieldSet("sender_domains", name="Routing"),
     )
 
     class Meta:
         model = MailRelay
         fields = ["name", "upstream_host", "upstream_port", "auth_type", "credential_ref",
-                  "use_tls", "service_instance", "tags"]
+                  "use_tls", "service_instance", "sender_domains", "tags"]
 
 
 class MailDomainFilterForm(NetBoxModelFilterSetForm):

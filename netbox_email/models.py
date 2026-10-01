@@ -175,6 +175,11 @@ class MailRelay(NetBoxModel):
         related_name="mail_relays",
         help_text="The netbox-services instance running this relay (composition link).",
     )
+    sender_domains = ArrayField(
+        models.CharField(max_length=253), default=list, blank=True,
+        help_text="Sender domains whose outbound mail to non-local recipients leaves through this relay (e.g. a "
+        "smarthost account the domain is verified on). A domain may be claimed by at most one relay.",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -182,6 +187,18 @@ class MailRelay(NetBoxModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        wanted = {d.strip().lower() for d in self.sender_domains}
+        claimed = {
+            d.lower(): r.name
+            for r in MailRelay.objects.exclude(pk=self.pk)
+            for d in r.sender_domains
+        }
+        taken = sorted(f"{d} ({claimed[d]})" for d in wanted if d in claimed)
+        if taken:
+            raise ValidationError({"sender_domains": f"Already routed through another relay: {', '.join(taken)}"})
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_email:mailrelay", args=[self.pk])
