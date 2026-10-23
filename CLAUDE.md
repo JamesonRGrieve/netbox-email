@@ -109,4 +109,4 @@ holds the structure; OpenBao holds the secret.
 ---
 
 ## Licensing
-- **AGPL-3.0-or-later** (workspace production-IaC standard). SPDX header in every file.
+- **AGPL-3.0-or-later**, SPDX header in every file (SOP → *Code Quality and Testing*).
