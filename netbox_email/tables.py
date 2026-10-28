@@ -13,7 +13,7 @@ class MailDomainTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = MailDomain
-        fields = ("pk", "id", "name", "domain_type", "service_instance", "is_catchall",
+        fields = ("pk", "id", "name", "domain_type", "service_instance", "is_catchall", "catchall_address",
                   "dkim_selector", "tags", "created", "last_updated")
         default_columns = ("name", "domain_type", "service_instance", "is_catchall")
 

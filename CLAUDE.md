@@ -72,7 +72,7 @@ holds the structure; OpenBao holds the secret.
 | `graphql/__init__.py` | placeholder (auto GraphQL via `NetBoxModel`) |
 
 ### Model — domains + mailboxes + aliases + relays
-- **MailDomain**: `name`(unique)·`domain_type`·`is_catchall`·`dkim_selector`·`dkim_key_ref`(OpenBao
+- **MailDomain**: `name`(unique)·`domain_type`·`is_catchall`·`catchall_address` (required by `clean()` when `is_catchall`; a full address)·`dkim_selector`·`dkim_key_ref`(OpenBao
   path); optional `service_instance`("netbox_services.ServiceInstance", SET_NULL).
 - **Mailbox** (FK domain): `local_part`·`mailbox_type`·`display_name`·`quota_mb`·`credential_ref`
   (OpenBao path)·`send_as_addresses` (ArrayField: owned send-as identities)·`shared_with` (ArrayField:

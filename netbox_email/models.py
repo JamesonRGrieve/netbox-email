@@ -39,6 +39,10 @@ class MailDomain(NetBoxModel):
     is_catchall = models.BooleanField(
         default=False, help_text="Route unmatched local parts to a catch-all mailbox."
     )
+    catchall_address = models.CharField(
+        max_length=254, blank=True,
+        help_text="The address that receives mail for unmatched local parts (required when is_catchall).",
+    )
     dkim_selector = models.CharField(
         max_length=63, blank=True, help_text="DKIM selector (the s= tag, e.g. 'default')."
     )
@@ -52,6 +56,13 @@ class MailDomain(NetBoxModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        if self.is_catchall and not self.catchall_address:
+            raise ValidationError({"catchall_address": "A catch-all domain needs the address its unmatched mail goes to."})
+        if self.catchall_address and "@" not in self.catchall_address:
+            raise ValidationError({"catchall_address": "Must be a full address (local@domain)."})
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_email:maildomain", args=[self.pk])

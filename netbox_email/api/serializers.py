@@ -12,7 +12,7 @@ class MailDomainSerializer(NetBoxModelSerializer):
     class Meta:
         model = MailDomain
         fields = [
-            "id", "url", "display", "name", "domain_type", "service_instance", "is_catchall",
+            "id", "url", "display", "name", "domain_type", "service_instance", "is_catchall", "catchall_address",
             "dkim_selector", "dkim_key_ref", "tags", "custom_fields", "created", "last_updated",
         ]
         brief_fields = ["id", "url", "display", "name", "domain_type"]

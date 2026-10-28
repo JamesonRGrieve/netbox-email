@@ -22,7 +22,7 @@ class _CRUD(
 class MailDomainAPITest(_CRUD):
     model = MailDomain
     brief_fields = ["display", "domain_type", "id", "name", "url"]
-    bulk_update_data = {"is_catchall": True}
+    bulk_update_data = {"is_catchall": True, "catchall_address": "postmaster@example.net"}
 
     @classmethod
     def setUpTestData(cls):
@@ -33,7 +33,7 @@ class MailDomainAPITest(_CRUD):
         ])
         cls.create_data = [
             {"name": "srv-a.example", "domain_type": "local"},
-            {"name": "srv-b.example", "domain_type": "relay", "is_catchall": True},
+            {"name": "srv-b.example", "domain_type": "relay", "is_catchall": True, "catchall_address": "all@srv-b.example"},
             {"name": "srv-c.example", "domain_type": "alias", "dkim_selector": "s1", "dkim_key_ref": "mail/dkim/srv-c"},
         ]
 

@@ -27,7 +27,7 @@ class MailDomainFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = MailDomain
-        fields = ["id", "name", "is_catchall", "dkim_selector", "service_instance_id"]
+        fields = ["id", "name", "is_catchall", "catchall_address", "dkim_selector", "service_instance_id"]
 
     def search(self, queryset, name, value):
         return queryset.filter(Q(name__icontains=value) | Q(dkim_selector__icontains=value))

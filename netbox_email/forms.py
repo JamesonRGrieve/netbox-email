@@ -10,13 +10,13 @@ from .models import MailAlias, Mailbox, MailDomain, MailRelay
 
 class MailDomainForm(NetBoxModelForm):
     fieldsets = (
-        FieldSet("name", "domain_type", "service_instance", "is_catchall", name="Domain"),
+        FieldSet("name", "domain_type", "service_instance", "is_catchall", "catchall_address", name="Domain"),
         FieldSet("dkim_selector", "dkim_key_ref", name="DKIM"),
     )
 
     class Meta:
         model = MailDomain
-        fields = ["name", "domain_type", "service_instance", "is_catchall", "dkim_selector",
+        fields = ["name", "domain_type", "service_instance", "is_catchall", "catchall_address", "dkim_selector",
                   "dkim_key_ref", "tags"]
 
 

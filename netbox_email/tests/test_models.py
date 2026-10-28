@@ -20,6 +20,20 @@ class MailDomainModelTest(TestCase):
         self.assertEqual(d.get_domain_type_color(), "green")
         self.assertEqual(d.domain_type, MailDomainTypeChoices.LOCAL)
 
+    def test_catchall_needs_a_full_address(self):
+        d = make_domain("catch.example")
+        d.is_catchall = True
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.catchall_address = "jameson"
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        d.catchall_address = "jameson@catch.example"
+        d.full_clean()
+        d.save()
+        d.refresh_from_db()
+        self.assertEqual(d.catchall_address, "jameson@catch.example")
+
     def test_name_unique(self):
         make_domain("dup.example")
         with self.assertRaises(IntegrityError), transaction.atomic():
